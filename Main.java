@@ -82,6 +82,14 @@ public class Main {
         String type = scanner.nextLine().toLowerCase();
         System.out.print("Device name: ");
         String name = scanner.nextLine();
+        
+        for (String deviceName : user.getAllDeviceNames()){
+            if (deviceName.equals(name)) {
+                System.out.println("A device with that name is already in the system. \nPlease chose a different name.");
+                return;
+            }
+            //If speed becomes a problem save names as keys in empty hashmap for constant lookup speed
+        }
 
         for (int i = 0; i < types.length; i++) {
             if(types[i].toString().toLowerCase().equals(type)) {
