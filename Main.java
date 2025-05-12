@@ -3,13 +3,9 @@ import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
 
-import devices.Light;
 import devices.Schedulable;
-import devices.SecurityCamera;
-import devices.SmartSpeaker;
-import devices.Aircon;
-import devices.DoorLock;
 import user.User;
+import utils.DeviceType;
 
 public class Main {
 
@@ -36,31 +32,7 @@ public class Main {
 
             switch (choice) {
                 case 1:
-                    System.out.print("\nDevice type (light/aircon/camera/speaker/doorlock): ");
-                    String type = scanner.nextLine().toLowerCase();
-                    System.out.print("Device name: ");
-                    String name = scanner.nextLine();
-                    switch (type) {
-                        case "light":
-                            user.addDevice(new Light(name));
-                            break;
-                        case "aircon":
-                            System.out.print("Default temperature: ");
-                            int temp = Integer.parseInt(scanner.nextLine());
-                            user.addDevice(new Aircon(name, temp));
-                            break;
-                        case "camera":
-                            user.addDevice(new SecurityCamera(name));
-                            break;
-                        case "speaker":
-                            user.addDevice(new SmartSpeaker(name));
-                            break;
-                        case "doorlock":
-                            user.addDevice(new DoorLock(name));
-                            break;
-                        default:
-                            System.out.println("Unknown device type.");
-                    }
+                    addDevice();
                     break;
                 case 2:
                     List<String> schedulableNames = new ArrayList<>();
@@ -116,5 +88,38 @@ public class Main {
             }
         }
         scanner.close();
+    }
+
+    private static void addDevice() {
+        DeviceType[] types = DeviceType.values();
+        {   //list device types
+            System.out.print("(Types: ");
+            for (int i = 0; i<types.length; i++) {
+                System.out.print(types[i]);
+                if (i<types.length-1) System.out.print(" / ");
+            }
+            System.out.print(")\n");
+        }
+
+        System.out.print("\nDevice type: ");
+        String type = scanner.nextLine().toLowerCase();
+        System.out.print("Device name: ");
+        String name = scanner.nextLine();
+
+        for (int i = 0; i < types.length; i++) {
+            if(types[i].toString().toLowerCase().equals(type)) {
+                try{
+                    user.addDevice(
+                    types[i].getDeviceClass()
+                    .getConstructor(String.class)
+                    .newInstance(name)
+                    );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
+        }
+        System.out.println("Unknown device type.");
     }
 }
