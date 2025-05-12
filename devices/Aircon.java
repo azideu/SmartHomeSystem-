@@ -8,6 +8,11 @@ public class Aircon extends Device implements Schedulable {
     private int temperature;
     private LocalTime schedule;
 
+    //base case
+    public Aircon(String name){
+        super(name, DeviceType.THERMOSTAT);
+    }
+
     public Aircon(String name, int initialTemp) {
         super(name, DeviceType.THERMOSTAT);
         this.temperature = initialTemp;
