@@ -1,9 +1,13 @@
 import java.time.LocalTime;
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 import devices.Schedulable;
+import devices.Device;
 import user.User;
 import utils.DeviceType;
 
@@ -24,6 +28,7 @@ public class Main {
             System.out.println("5. Show All Status");
             System.out.println("6. Activate All Functions");
             System.out.println("7. Run Scheduled Actions");
+            System.out.println("8. List all devices");
             System.out.println("0. Exit");
             System.out.print("Choose an option: ");
             int choice = Integer.parseInt(scanner.nextLine());
@@ -51,6 +56,9 @@ public class Main {
                     break;
                 case 7:
                     runScheduledActions();
+                    break;
+                case 8:
+                    listAllDevices();
                     break;
                 default:
                     System.out.println("Invalid option.");
@@ -144,5 +152,30 @@ public class Main {
         String[] tParts = scanner.nextLine().split(":");
         LocalTime runTime = LocalTime.of(Integer.parseInt(tParts[0]), Integer.parseInt(tParts[1]));
         user.runScheduledActions(runTime);
+    }
+
+    private static void listAllDevices(){
+        Map<DeviceType, List<Device>> deviceBuckets = new HashMap<>();
+
+        for (String name : user.getAllDeviceNames()) {
+            Device device = user.getDevice(name);
+            deviceBuckets.computeIfAbsent(device.getType(), k -> new ArrayList<>()).add(device);
+        }
+
+        if (deviceBuckets.entrySet().isEmpty()){
+            System.out.println("No Devices");
+            return;
+        }
+        
+        for (Map.Entry<DeviceType, List<Device>> entry : deviceBuckets.entrySet()) {
+            System.out.println(entry.getKey());
+            List<Device> devices = entry.getValue();
+            if (!devices.isEmpty()) {
+                devices.sort(Comparator.comparing(Device::getName));
+                for (Device device : devices) System.out.printf("    %s%s\n", device.getName(),
+                ((device instanceof Schedulable) && (((Schedulable)device).getSchedule() != null)) ? "*" : ""); //indicate schedule existance
+            }
+            System.out.println();
+        }
     }
 }
