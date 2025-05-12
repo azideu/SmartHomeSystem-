@@ -44,18 +44,13 @@ public class Main {
                     turnOffDevice();
                     break;
                 case 5:
-                    System.out.println();
-                    user.showAllStatus();
+                    showAllStatus();
                     break;
                 case 6:
-                    System.out.println();
-                    user.activateAllFunctions();
+                    activateAllFunctions();
                     break;
                 case 7:
-                    System.out.print("\nTime to run scheduled actions (HH:mm): ");
-                    String[] tParts = scanner.nextLine().split(":");
-                    LocalTime runTime = LocalTime.of(Integer.parseInt(tParts[0]), Integer.parseInt(tParts[1]));
-                    user.runScheduledActions(runTime);
+                    runScheduledActions();
                     break;
                 default:
                     System.out.println("Invalid option.");
@@ -132,5 +127,22 @@ public class Main {
 
     private static void turnOffDevice(){
         turnOffDevice();
+    }
+
+    private static void showAllStatus(){
+        System.out.println();
+        user.showAllStatus();
+    }
+
+    private static void activateAllFunctions(){
+        System.out.println();
+        user.activateAllFunctions();
+    }
+
+    private static void runScheduledActions(){
+        System.out.print("\nTime to run scheduled actions (HH:mm): ");
+        String[] tParts = scanner.nextLine().split(":");
+        LocalTime runTime = LocalTime.of(Integer.parseInt(tParts[0]), Integer.parseInt(tParts[1]));
+        user.runScheduledActions(runTime);
     }
 }
