@@ -11,6 +11,7 @@ public class Aircon extends Device implements Schedulable {
     //base case
     public Aircon(String name){
         super(name, DeviceType.THERMOSTAT);
+        this.temperature = 22;
     }
 
     public Aircon(String name, int initialTemp) {
