@@ -35,39 +35,13 @@ public class Main {
                     addDevice();
                     break;
                 case 2:
-                    List<String> schedulableNames = new ArrayList<>();
-                    for (String deviceName : user.getAllDeviceNames()) {
-                        if (user.getDevice(deviceName) instanceof Schedulable) {
-                            schedulableNames.add(deviceName);
-                        }
-                    }
-                    if (schedulableNames.isEmpty()) {
-                        System.out.println("\nNo schedulable devices available to schedule.");
-                        break;
-                    }
-                    System.out.println("\nSchedulable devices:");
-                    for (int i = 0; i < schedulableNames.size(); i++) {
-                        System.out.println((i + 1) + ". " + schedulableNames.get(i));
-                    }
-                    System.out.print("Select device by number: ");
-                    int deviceIndex = Integer.parseInt(scanner.nextLine()) - 1;
-                    if (deviceIndex < 0 || deviceIndex >= schedulableNames.size()) {
-                        System.out.println("Invalid selection.");
-                        break;
-                    }
-                    String dName = schedulableNames.get(deviceIndex);
-                    System.out.print("Schedule time (HH:mm): ");
-                    String[] timeParts = scanner.nextLine().split(":");
-                    LocalTime time = LocalTime.of(Integer.parseInt(timeParts[0]), Integer.parseInt(timeParts[1]));
-                    user.setDeviceSchedule(dName, time);
+                    scheduleDevice();
                     break;
                 case 3:
-                    System.out.print("\nDevice name: ");
-                    user.getDevice(scanner.nextLine()).turnOn();
+                    turnOnDevice();
                     break;
                 case 4:
-                    System.out.print("\nDevice name: ");
-                    user.getDevice(scanner.nextLine()).turnOff();
+                    turnOffDevice();
                     break;
                 case 5:
                     System.out.println();
@@ -121,5 +95,42 @@ public class Main {
             }
         }
         System.out.println("Unknown device type.");
+    }
+
+    private static void scheduleDevice(){
+        List<String> schedulableNames = new ArrayList<>();
+        for (String deviceName : user.getAllDeviceNames()) {
+            if (user.getDevice(deviceName) instanceof Schedulable) {
+                schedulableNames.add(deviceName);
+            }
+        }
+        if (schedulableNames.isEmpty()) {
+            System.out.println("\nNo schedulable devices available to schedule.");
+            return;
+        }
+        System.out.println("\nSchedulable devices:");
+        for (int i = 0; i < schedulableNames.size(); i++) {
+            System.out.println((i + 1) + ". " + schedulableNames.get(i));
+        }
+        System.out.print("Select device by number: ");
+        int deviceIndex = Integer.parseInt(scanner.nextLine()) - 1;
+        if (deviceIndex < 0 || deviceIndex >= schedulableNames.size()) {
+            System.out.println("Invalid selection.");
+            return;
+        }
+        String dName = schedulableNames.get(deviceIndex);
+        System.out.print("Schedule time (HH:mm): ");
+        String[] timeParts = scanner.nextLine().split(":");
+        LocalTime time = LocalTime.of(Integer.parseInt(timeParts[0]), Integer.parseInt(timeParts[1]));
+        user.setDeviceSchedule(dName, time);
+    }
+
+    private static void turnOnDevice(){
+        System.out.print("\nDevice name: ");
+        user.getDevice(scanner.nextLine()).turnOn();
+    }
+
+    private static void turnOffDevice(){
+        turnOffDevice();
     }
 }
