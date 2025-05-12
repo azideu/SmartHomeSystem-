@@ -30,8 +30,7 @@ public class Main {
             System.out.println("7. Run Scheduled Actions");
             System.out.println("8. List all devices");
             System.out.println("0. Exit");
-            System.out.print("Choose an option: ");
-            int choice = Integer.parseInt(scanner.nextLine());
+            int choice = getIntegerInput("Choose an option: ");
 
             if (choice == 0) break;
 
@@ -67,6 +66,47 @@ public class Main {
         scanner.close();
     }
 
+    
+    private static int getIntegerInput(String queryText){
+        int integer = 0;
+        while (true) {
+            try {
+                System.out.println(queryText);
+                integer = Integer.parseInt(scanner.nextLine());
+                if (integer < 0) throw new NumberFormatException();
+            } catch (NumberFormatException e) {
+                System.out.println("Please input a valid integer\n");
+                continue;
+            }
+            break;
+        }
+        return integer;
+    }
+
+    private static LocalTime getTimeInput(String queryText) {
+        int hours;
+        int minutes;
+        while (true) {
+            try {
+                System.out.println(queryText);
+                String[] timeParts = scanner.nextLine().split(":");
+                if (timeParts.length != 2) throw new NumberFormatException();
+
+                hours = Integer.parseInt(timeParts[0]);
+                if (hours < 0 || hours > 23) throw new NumberFormatException();
+
+                minutes = Integer.parseInt(timeParts[1]);
+                if (minutes < 0 || minutes > 59) throw new NumberFormatException();
+
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a valid time");
+                continue;
+            }
+            break;
+        }
+        return LocalTime.of(hours,minutes);
+    }
+
     private static void addDevice() {
         DeviceType[] types = DeviceType.values();
         {   //list device types
@@ -82,7 +122,7 @@ public class Main {
         String type = scanner.nextLine().toLowerCase();
         System.out.print("Device name: ");
         String name = scanner.nextLine();
-        
+
         for (String deviceName : user.getAllDeviceNames()){
             if (deviceName.equals(name)) {
                 System.out.println("A device with that name is already in the system. \nPlease chose a different name.");
@@ -123,16 +163,15 @@ public class Main {
         for (int i = 0; i < schedulableNames.size(); i++) {
             System.out.println((i + 1) + ". " + schedulableNames.get(i));
         }
-        System.out.print("Select device by number: ");
-        int deviceIndex = Integer.parseInt(scanner.nextLine()) - 1;
+
+        int deviceIndex = getIntegerInput("Select device by number: ") - 1;
         if (deviceIndex < 0 || deviceIndex >= schedulableNames.size()) {
             System.out.println("Invalid selection.");
             return;
         }
+
         String dName = schedulableNames.get(deviceIndex);
-        System.out.print("Schedule time (HH:mm): ");
-        String[] timeParts = scanner.nextLine().split(":");
-        LocalTime time = LocalTime.of(Integer.parseInt(timeParts[0]), Integer.parseInt(timeParts[1]));
+        LocalTime time = getTimeInput("Schedule time (HH:mm): ");        
         user.setDeviceSchedule(dName, time);
     }
 
@@ -156,9 +195,7 @@ public class Main {
     }
 
     private static void runScheduledActions(){
-        System.out.print("\nTime to run scheduled actions (HH:mm): ");
-        String[] tParts = scanner.nextLine().split(":");
-        LocalTime runTime = LocalTime.of(Integer.parseInt(tParts[0]), Integer.parseInt(tParts[1]));
+        LocalTime runTime = getTimeInput("\nTime to run scheduled actions (HH:mm): ");
         user.runScheduledActions(runTime);
     }
 
