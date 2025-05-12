@@ -12,11 +12,12 @@ import devices.DoorLock;
 import user.User;
 
 public class Main {
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
 
+    private static final Scanner scanner = new Scanner(System.in);
+    private static User user;
+    public static void main(String[] args) {
         System.out.print("Enter username: ");
-        User user = new User(scanner.nextLine());
+        user = new User(scanner.nextLine());
 
         while (true) {
             System.out.println();
