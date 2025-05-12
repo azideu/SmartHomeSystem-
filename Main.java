@@ -28,7 +28,8 @@ public class Main {
             System.out.println("5. Show All Status");
             System.out.println("6. Activate All Functions");
             System.out.println("7. Run Scheduled Actions");
-            System.out.println("8. List all devices");
+            System.out.println("8: Remove device");
+            System.out.println("9. List all devices");
             System.out.println("0. Exit");
             int choice = getIntegerInput("Choose an option: ");
 
@@ -57,6 +58,9 @@ public class Main {
                     runScheduledActions();
                     break;
                 case 8:
+                    removeDevice();
+                    break;
+                case 9:
                     listAllDevices();
                     break;
                 default:
@@ -146,6 +150,13 @@ public class Main {
             }
         }
         System.out.println("Unknown device type.");
+    }
+
+    private static void removeDevice() {
+        System.out.print("Device name: ");
+        String name = scanner.nextLine();
+        Device device = user.getDevice(name);
+        user.removeDevice(device);
     }
 
     private static void scheduleDevice(){

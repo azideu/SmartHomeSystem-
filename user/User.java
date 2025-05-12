@@ -34,6 +34,11 @@ public class User {
         System.out.println("Added device: " + device.getName());
     }
 
+    public void removeDevice(Device device) {
+        devices.remove(device);
+        System.out.println("Removed device: " + device.getName());
+    }
+
     public void setDeviceSchedule(String deviceName, LocalTime time) {
         for (Device d : devices) {
             if (d.getName().equalsIgnoreCase(deviceName) && d instanceof Schedulable) {
