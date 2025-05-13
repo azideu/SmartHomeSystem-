@@ -7,8 +7,7 @@ import java.time.LocalTime;
 public class Aircon extends Device implements Schedulable {
     private int temperature;
     private LocalTime schedule;
-
-    //base case
+    
     public Aircon(String name){
         super(name, DeviceType.THERMOSTAT);
         this.temperature = 22;

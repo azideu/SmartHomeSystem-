@@ -12,7 +12,6 @@ import user.User;
 import utils.DeviceType;
 
 public class Main {
-
     private static final Scanner scanner = new Scanner(System.in);
     private static User user;
     public static void main(String[] args) {
@@ -215,7 +214,7 @@ public class Main {
 
         for (String name : user.getAllDeviceNames()) {
             Device device = user.getDevice(name);
-            deviceBuckets.computeIfAbsent(device.getType(), k -> new ArrayList<>()).add(device);
+            deviceBuckets.computeIfAbsent(device.getType(), _ -> new ArrayList<>()).add(device);
         }
 
         if (deviceBuckets.entrySet().isEmpty()){

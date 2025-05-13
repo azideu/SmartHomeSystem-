@@ -14,7 +14,6 @@ public enum DeviceType {
     SMARTSPEAKER(SmartSpeaker.class), 
     DOORLOCK(DoorLock.class);
 
-
     //functionality to map type to class
     private final Class<? extends Device> deviceClass;
 
