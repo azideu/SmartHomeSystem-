@@ -11,7 +11,6 @@ This project simulates a smart home environment, allowing users to interact with
 * Control and monitor smart home devices.
 * User authentication and role management.
 * Device status tracking and logging.
-* Modular design for easy expansion.([GitHub][1], [GitHub][2], [GitHub][3])
 
 ## Project Structure
 
@@ -58,7 +57,7 @@ This project simulates a smart home environment, allowing users to interact with
    java Main
    ```
 
-
+sigma sigma boy
 
 ## Usage
 
