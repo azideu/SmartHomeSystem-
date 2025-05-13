@@ -31,12 +31,12 @@ public class User {
 
     public void addDevice(Device device) {
         devices.add(device);
-        System.out.println("Added device: " + device.getName());
+        System.out.println("Added device: " + device.getName() + " (Class: " + device.getClass().getSimpleName() + ")");
     }
 
     public void removeDevice(Device device) {
         devices.remove(device);
-        System.out.println("Removed device: " + device.getName());
+        System.out.println("Removed device: " + device.getName() + " (Class: " + device.getClass().getSimpleName() + ")");
     }
 
     public void setDeviceSchedule(String deviceName, LocalTime time) {
