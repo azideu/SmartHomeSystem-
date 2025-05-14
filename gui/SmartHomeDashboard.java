@@ -170,8 +170,14 @@ public class SmartHomeDashboard extends JFrame {
                     }
                 }
 
-                // Check for duplicate name (assume "name" is always the first field)
+                // Name validation (must not be empty or whitespace)
                 String name = args[0].toString();
+                if (name.trim().isEmpty()) {
+                    inputFields[0].setBackground(new Color(255, 180, 180));
+                    JOptionPane.showMessageDialog(this, "Device name cannot be empty.");
+                    valid = false;
+                }
+                // Check for duplicate name
                 for (String deviceName : user.getAllDeviceNames()) {
                     if (deviceName.equals(name)) {
                         inputFields[0].setBackground(new Color(255, 180, 180));
