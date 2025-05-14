@@ -4,6 +4,8 @@ import utils.DeviceType;
 import java.time.LocalTime;
 
 public class SmartSpeaker extends Device implements Schedulable {
+    public static final String[] FORM_FIELDS = {"name", "volume", "playlist"};
+
     private LocalTime schedule;
     private boolean playing = false;
     private int volume;
@@ -15,43 +17,25 @@ public class SmartSpeaker extends Device implements Schedulable {
         this.playlist = "Top Hits";
     }
 
-    // Getters
-    public int getVolume() {
-        return volume;
-    }
-
-    public String getPlaylist() {
-        return playlist;
-    }
-
-    // Setters
-    public void setVolume(int volume) {
+    public SmartSpeaker(String name, int volume, String playlist) {
+        super(name, DeviceType.SMART_SPEAKER);
         this.volume = volume;
-    }
-    
-    public void setPlaylist(String playlist) {
         this.playlist = playlist;
     }
+
+    public static String[] getFormFields() {
+        return FORM_FIELDS;
+    }
+
+    public void setVolume(int volume) { this.volume = volume; }
+    public void setPlaylist(String playlist) { this.playlist = playlist; }
+    public int getVolume() { return volume; }
+    public String getPlaylist() { return playlist; }
 
     @Override
     public void performDeviceFunction() {
         playing = true;
         System.out.println(getName() + " is playing your favorite playlist: " + playlist + " at volume " + volume + "!");
-    }
-
-    @Override
-    public void setSchedule(LocalTime time) {
-        this.schedule = time;
-    }
-
-    @Override
-    public LocalTime getSchedule() {
-        return schedule;
-    }
-
-    @Override
-    public String[] getConfigFields() {
-        return new String[] {"volume", "playlist"};
     }
 
     @Override
@@ -61,5 +45,16 @@ public class SmartSpeaker extends Device implements Schedulable {
         } else {
             return getName() + " is idle.";
         }
+    }
+
+    @Override
+    public void setSchedule(LocalTime time) { this.schedule = time; }
+
+    @Override
+    public LocalTime getSchedule() { return schedule; }
+
+    @Override
+    public String[] getConfigFields() {
+        return new String[] {"volume", "playlist"};
     }
 }

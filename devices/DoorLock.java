@@ -3,22 +3,26 @@ package devices;
 import utils.DeviceType;
 
 public class DoorLock extends Device {
+    public static final String[] FORM_FIELDS = {"name", "locked"};
+
     private boolean locked;
 
     public DoorLock(String name) {
         super(name, DeviceType.DOORLOCK);
         this.locked = true;
     }
-    
-    // Getters
-    public boolean isLocked() {
-        return locked;
-    }
 
-    // Setters
-    public void setLocked(boolean locked) {
+    public DoorLock(String name, boolean locked) {
+        super(name, DeviceType.DOORLOCK);
         this.locked = locked;
     }
+
+    public static String[] getFormFields() {
+        return FORM_FIELDS;
+    }
+
+    public void setLocked(boolean locked) { this.locked = locked; }
+    public boolean isLocked() { return locked; }
 
     @Override
     public void performDeviceFunction() {

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.*;
 import java.awt.*;
+import java.text.NumberFormat;
 import java.time.LocalTime;
 import devices.Device;
 import devices.Schedulable;
@@ -69,55 +70,79 @@ public class SmartHomeDashboard extends JFrame {
                     types[0].toString()
             );
             if (typeStr == null) return;
-        
-            String name = JOptionPane.showInputDialog(this, "Enter device name:");
-            if (name == null || name.trim().isEmpty()) return;
-        
-            // Check for duplicate name
+
+            // Get the DeviceType enum from the string
+            DeviceType selectedType = null;
+            for (DeviceType dt : types) {
+                if (dt.toString().equals(typeStr)) {
+                    selectedType = dt;
+                    break;
+                }
+            }
+            if (selectedType == null) return;
+
+            // Build the form fields dynamically
+            String[] fields = selectedType.getFormFields();
+            if (fields.length == 0) return;
+
+            JPanel formPanel = new JPanel(new GridLayout(fields.length, 2));
+            JComponent[] inputFields = new JComponent[fields.length];
+
+            for (int i = 0; i < fields.length; i++) {
+                formPanel.add(new JLabel(fields[i] + ":"));
+                if (fields[i].equalsIgnoreCase("temperature") ||
+                    fields[i].equalsIgnoreCase("volume") ||
+                    fields[i].equalsIgnoreCase("brightness")) {
+                    inputFields[i] = new JFormattedTextField(NumberFormat.getIntegerInstance());
+                } else if (fields[i].equalsIgnoreCase("locked")) {
+                    JComboBox<String> combo = new JComboBox<>(new String[]{"locked", "unlocked"});
+                    inputFields[i] = combo;
+                } else {
+                    inputFields[i] = new JTextField();
+                }
+                formPanel.add(inputFields[i]);
+            }
+
+            int result = JOptionPane.showConfirmDialog(this, formPanel, "Configure " + selectedType,
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+            if (result != JOptionPane.OK_OPTION) return;
+
+            // Collect values
+            Object[] args = new Object[fields.length];
+            Class<?>[] argTypes = new Class<?>[fields.length];
+            for (int i = 0; i < fields.length; i++) {
+                if (inputFields[i] instanceof JFormattedTextField) {
+                    String val = ((JFormattedTextField) inputFields[i]).getText();
+                    args[i] = val.isEmpty() ? 0 : Integer.parseInt(val);
+                    argTypes[i] = int.class;
+                } else if (inputFields[i] instanceof JComboBox) {
+                    String val = (String) ((JComboBox<?>) inputFields[i]).getSelectedItem();
+                    args[i] = val.equalsIgnoreCase("locked") || val.equalsIgnoreCase("true");
+                    argTypes[i] = boolean.class;
+                } else {
+                    args[i] = ((JTextField) inputFields[i]).getText();
+                    argTypes[i] = String.class;
+                }
+            }
+
+            // Check for duplicate name (assume "name" is always the first field)
+            String name = args[0].toString();
             for (String deviceName : user.getAllDeviceNames()) {
                 if (deviceName.equals(name)) {
                     JOptionPane.showMessageDialog(this, "A device with that name already exists.");
                     return;
                 }
             }
-        
-            for (DeviceType dt : types) {
-                if (dt.toString().equals(typeStr)) {
-                    try {
-                        // Show config dialog and get values
-                        String[] configValues = showDeviceConfigDialog(dt);
-                        if (configValues == null) return; // User cancelled
-        
-                        // Create device (currently only name is used in constructor)
-                        Device device = dt.getDeviceClass().getConstructor(String.class).newInstance(name);
-        
-                        // Set config fields for each device type
-                        if (device instanceof devices.Light && configValues.length == 2) {
-                            ((devices.Light) device).setBrightness(Integer.parseInt(configValues[0]));
-                            ((devices.Light) device).setColor(configValues[1]);
-                        } else if (device instanceof devices.Aircon && configValues.length == 2) {
-                            ((devices.Aircon) device).setTemperature(Integer.parseInt(configValues[0]));
-                            ((devices.Aircon) device).setMode(configValues[1]);
-                        } else if (device instanceof devices.SecurityCamera && configValues.length == 1) {
-                            ((devices.SecurityCamera) device).setResolution(configValues[0]);
-                        } else if (device instanceof devices.SmartSpeaker && configValues.length == 2) {
-                            ((devices.SmartSpeaker) device).setVolume(Integer.parseInt(configValues[0]));
-                            ((devices.SmartSpeaker) device).setPlaylist(configValues[1]);
-                        } else if (device instanceof devices.DoorLock && configValues.length == 1) {
-                            // For DoorLock, configValues[0] could be "true"/"false" or "locked"/"unlocked"
-                            boolean locked = configValues[0].equalsIgnoreCase("true") ||
-                                             configValues[0].equalsIgnoreCase("locked");
-                            ((devices.DoorLock) device).setLocked(locked);
-                        }
-        
-                        user.addDevice(device);
-                        refreshDeviceList();
-                        return;
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                        JOptionPane.showMessageDialog(this, "Failed to add device.");
-                    }
-                }
+
+            // Create device using the correct constructor
+            try {
+                Device device = selectedType.getDeviceClass().getConstructor(argTypes).newInstance(args);
+                user.addDevice(device);
+                refreshDeviceList();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Failed to add device.");
             }
         });
 
@@ -237,38 +262,6 @@ public class SmartHomeDashboard extends JFrame {
         exitBtn.addActionListener(e -> System.exit(0));
 
         setVisible(true);
-    }
-
-    // Dynamic config dialog for device creation
-    private String[] showDeviceConfigDialog(DeviceType type) {
-        try {
-            Device tempDevice = type.getDeviceClass().getConstructor(String.class).newInstance("temp");
-            String[] fields = tempDevice.getConfigFields();
-            if (fields.length == 0) return new String[0];
-
-            String[] values = new String[fields.length];
-            JPanel panel = new JPanel(new GridLayout(fields.length, 2));
-            JTextField[] textFields = new JTextField[fields.length];
-
-            for (int i = 0; i < fields.length; i++) {
-                panel.add(new JLabel(fields[i] + ":"));
-                textFields[i] = new JTextField();
-                panel.add(textFields[i]);
-            }
-
-            int result = JOptionPane.showConfirmDialog(this, panel, "Configure " + type,
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-            if (result == JOptionPane.OK_OPTION) {
-                for (int i = 0; i < fields.length; i++) {
-                    values[i] = textFields[i].getText();
-                }
-                return values;
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
     }
 
     private void refreshDeviceList() {

@@ -24,6 +24,14 @@ public enum DeviceType {
         return deviceClass;
     }
 
+    public String[] getFormFields() {
+        try {
+            return (String[]) deviceClass.getMethod("getFormFields").invoke(null);
+        } catch (Exception e) {
+            return new String[] {"name"};
+        }
+    }   
+
     @Override
     public String toString() {
         // Replace underscores with spaces and capitalize each word
