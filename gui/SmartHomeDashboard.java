@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.text.NumberFormat;
 import java.time.LocalTime;
+import javax.swing.text.MaskFormatter;
 import devices.Device;
 import devices.Schedulable;
 import backend.User;
@@ -86,7 +87,6 @@ public class SmartHomeDashboard extends JFrame {
             );
             if (typeStr == null) return;
 
-            // Get the DeviceType enum from the string
             DeviceType selectedType = null;
             for (DeviceType dt : types) {
                 if (dt.toString().equals(typeStr)) {
@@ -96,7 +96,6 @@ public class SmartHomeDashboard extends JFrame {
             }
             if (selectedType == null) return;
 
-            // Build the form fields dynamically using field types
             Map<String, String> fieldTypes = selectedType.getFormFieldTypes();
             String[] fields = fieldTypes.keySet().toArray(new String[0]);
             if (fields.length == 0) return;
@@ -123,50 +122,73 @@ public class SmartHomeDashboard extends JFrame {
                 formPanel.add(inputFields[i]);
             }
 
-            int result = JOptionPane.showConfirmDialog(this, formPanel, "Configure " + selectedType,
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            boolean valid = false;
+            while (!valid) {
+                // Reset all backgrounds
+                for (JComponent comp : inputFields) comp.setBackground(Color.white);
 
-            if (result != JOptionPane.OK_OPTION) return;
+                int result = JOptionPane.showConfirmDialog(this, formPanel, "Configure " + selectedType,
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-            // Collect values
-            Object[] args = new Object[fields.length];
-            Class<?>[] argTypes = new Class<?>[fields.length];
-            for (int i = 0; i < fields.length; i++) {
-                String type = fieldTypes.get(fields[i]);
-                if ("int".equals(type)) {
-                    String val = ((JFormattedTextField) inputFields[i]).getText();
-                    args[i] = val.isEmpty() ? 0 : Integer.parseInt(val);
-                    argTypes[i] = int.class;
-                } else if ("boolean".equals(type)) {
-                    String val = (String) ((JComboBox<?>) inputFields[i]).getSelectedItem();
-                    args[i] = Boolean.parseBoolean(val);
-                    argTypes[i] = boolean.class;
-                } else if (type.startsWith("enum:")) {
-                    args[i] = ((JComboBox<?>) inputFields[i]).getSelectedItem();
-                    argTypes[i] = String.class;
-                } else {
-                    args[i] = ((JTextField) inputFields[i]).getText();
-                    argTypes[i] = String.class;
+                if (result != JOptionPane.OK_OPTION) return;
+
+                valid = true;
+                Object[] args = new Object[fields.length];
+                Class<?>[] argTypes = new Class<?>[fields.length];
+
+                for (int i = 0; i < fields.length; i++) {
+                    String type = fieldTypes.get(fields[i]);
+                    try {
+                        if ("int".equals(type)) {
+                            String val = ((JFormattedTextField) inputFields[i]).getText();
+                            int intVal = val.isEmpty() ? 0 : Integer.parseInt(val);
+
+                            // Special validation for Aircon temperature
+                            if (selectedType.toString().equalsIgnoreCase("AIRCON") && fields[i].equalsIgnoreCase("temperature")) {
+                                if (intVal < 16 || intVal > 32) {
+                                    inputFields[i].setBackground(new Color(255, 180, 180));
+                                    JOptionPane.showMessageDialog(this, "Temperature for Aircon must be between 16 and 32°C.");
+                                    valid = false;
+                                }
+                            }
+                            args[i] = intVal;
+                            argTypes[i] = int.class;
+                        } else if ("boolean".equals(type)) {
+                            String val = (String) ((JComboBox<?>) inputFields[i]).getSelectedItem();
+                            args[i] = Boolean.parseBoolean(val);
+                            argTypes[i] = boolean.class;
+                        } else if (type.startsWith("enum:")) {
+                            args[i] = ((JComboBox<?>) inputFields[i]).getSelectedItem();
+                            argTypes[i] = String.class;
+                        } else {
+                            args[i] = ((JTextField) inputFields[i]).getText();
+                            argTypes[i] = String.class;
+                        }
+                    } catch (Exception ex) {
+                        inputFields[i].setBackground(new Color(255, 180, 180));
+                        valid = false;
+                    }
                 }
-            }
 
-            // Check for duplicate name (assume "name" is always the first field)
-            String name = args[0].toString();
-            for (String deviceName : user.getAllDeviceNames()) {
-                if (deviceName.equals(name)) {
-                    JOptionPane.showMessageDialog(this, "A device with that name already exists.");
-                    return;
+                // Check for duplicate name (assume "name" is always the first field)
+                String name = args[0].toString();
+                for (String deviceName : user.getAllDeviceNames()) {
+                    if (deviceName.equals(name)) {
+                        inputFields[0].setBackground(new Color(255, 180, 180));
+                        JOptionPane.showMessageDialog(this, "A device with that name already exists.");
+                        valid = false;
+                    }
                 }
-            }
 
-            // Create device using the correct constructor
-            try {
-                Device device = selectedType.getDeviceClass().getConstructor(argTypes).newInstance(args);
-                user.addDevice(device);
-                refreshDeviceList();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Failed to add device.");
+                if (valid) {
+                    try {
+                        Device device = selectedType.getDeviceClass().getConstructor(argTypes).newInstance(args);
+                        user.addDevice(device);
+                        refreshDeviceList();
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(this, "Failed to add device.");
+                    }
+                }
             }
         });
 
@@ -193,17 +215,35 @@ public class SmartHomeDashboard extends JFrame {
             );
             if (selected == null) return;
 
-            String timeStr = JOptionPane.showInputDialog(this, "Schedule time (HH:MM):");
-            if (timeStr == null) return;
+            boolean valid = false;
+            MaskFormatter timeFormatter = null;
             try {
-                String[] parts = timeStr.split(":");
-                int h = Integer.parseInt(parts[0]);
-                int m = Integer.parseInt(parts[1]);
-                LocalTime time = LocalTime.of(h, m);
-                user.setDeviceSchedule(selected, time);
-                JOptionPane.showMessageDialog(this, "Schedule set for " + selected + " at " + time);
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Invalid time format.");
+                timeFormatter = new MaskFormatter("##:##");
+                timeFormatter.setPlaceholderCharacter('0');
+            } catch (java.text.ParseException ex) {
+                ex.printStackTrace();
+            }
+            JFormattedTextField timeField = new JFormattedTextField(timeFormatter);
+
+            while (!valid) {
+                timeField.setBackground(Color.white);
+                int result = JOptionPane.showConfirmDialog(this, timeField, "Schedule time (HH:mm)", JOptionPane.OK_CANCEL_OPTION);
+                if (result != JOptionPane.OK_OPTION) return;
+                String timeStr = timeField.getText();
+
+                try {
+                    String[] parts = timeStr.split(":");
+                    int h = Integer.parseInt(parts[0]);
+                    int m = Integer.parseInt(parts[1]);
+                    if (h < 0 || h > 23 || m < 0 || m > 59) throw new NumberFormatException();
+                    LocalTime time = LocalTime.of(h, m);
+                    user.setDeviceSchedule(selected, time);
+                    JOptionPane.showMessageDialog(this, "Schedule set for " + selected + " at " + time);
+                    valid = true;
+                } catch (Exception ex) {
+                    timeField.setBackground(new Color(255, 180, 180));
+                    JOptionPane.showMessageDialog(this, "Invalid time format or out of range.");
+                }
             }
         });
 
@@ -253,17 +293,35 @@ public class SmartHomeDashboard extends JFrame {
 
         // 7. Run Scheduled Actions
         runScheduledBtn.addActionListener(e -> {
-            String timeStr = JOptionPane.showInputDialog(this, "Time to run scheduled actions (HH:mm):");
-            if (timeStr == null) return;
+            boolean valid = false;
+            MaskFormatter timeFormatter = null;
             try {
-                String[] parts = timeStr.split(":");
-                int h = Integer.parseInt(parts[0]);
-                int m = Integer.parseInt(parts[1]);
-                LocalTime time = LocalTime.of(h, m);
-                user.runScheduledActions(time);
-                JOptionPane.showMessageDialog(this, "Scheduled actions executed for " + time);
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Invalid time format.");
+                timeFormatter = new MaskFormatter("##:##");
+                timeFormatter.setPlaceholderCharacter('0');
+            } catch (java.text.ParseException ex) {
+                ex.printStackTrace();
+            }
+            JFormattedTextField timeField = new JFormattedTextField(timeFormatter);
+
+            while (!valid) {
+                timeField.setBackground(Color.white);
+                int result = JOptionPane.showConfirmDialog(this, timeField, "Time to run scheduled actions (HH:mm)", JOptionPane.OK_CANCEL_OPTION);
+                if (result != JOptionPane.OK_OPTION) return;
+                String timeStr = timeField.getText();
+
+                try {
+                    String[] parts = timeStr.split(":");
+                    int h = Integer.parseInt(parts[0]);
+                    int m = Integer.parseInt(parts[1]);
+                    if (h < 0 || h > 23 || m < 0 || m > 59) throw new NumberFormatException();
+                    LocalTime time = LocalTime.of(h, m);
+                    user.runScheduledActions(time);
+                    JOptionPane.showMessageDialog(this, "Scheduled actions executed for " + time);
+                    valid = true;
+                } catch (Exception ex) {
+                    timeField.setBackground(new Color(255, 180, 180));
+                    JOptionPane.showMessageDialog(this, "Invalid time format or out of range.");
+                }
             }
         });
 
