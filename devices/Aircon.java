@@ -1,8 +1,12 @@
 package devices;
 
 import utils.DeviceType;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class Aircon extends Device {
+    public static final String[] FORM_FIELDS = {"name", "temperature", "mode"};
+
     private int temperature;
     private String mode;
 
@@ -12,22 +16,28 @@ public class Aircon extends Device {
         this.mode = "Cool";
     }
 
-    // Getters
-    public int getTemperature() {
-        return temperature;
-    }
-    public String getMode() {
-        return mode;
-    }
-
-    // Setters
-    public void setTemperature(int temperature) {
-    this.temperature = temperature;
-    }
-    
-    public void setMode(String mode) {
+    public Aircon(String name, int temperature, String mode) {
+        super(name, DeviceType.AIRCON);
+        this.temperature = temperature;
         this.mode = mode;
     }
+
+    public static String[] getFormFields() {
+        return FORM_FIELDS;
+    }
+
+    public static Map<String, String> getFormFieldTypes() {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("name", "string");
+        map.put("temperature", "int");
+        map.put("mode", "string");
+        return map;
+    }
+
+    public void setTemperature(int temperature) { this.temperature = temperature; }
+    public void setMode(String mode) { this.mode = mode; }
+    public int getTemperature() { return temperature; }
+    public String getMode() { return mode; }
 
     @Override
     public void performDeviceFunction() {
