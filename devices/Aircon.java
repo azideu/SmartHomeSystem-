@@ -1,6 +1,8 @@
 package devices;
 
 import utils.DeviceType;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class Aircon extends Device {
     public static final String[] FORM_FIELDS = {"name", "temperature", "mode"};
@@ -22,6 +24,14 @@ public class Aircon extends Device {
 
     public static String[] getFormFields() {
         return FORM_FIELDS;
+    }
+
+    public static Map<String, String> getFormFieldTypes() {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("name", "string");
+        map.put("temperature", "int");
+        map.put("mode", "string");
+        return map;
     }
 
     public void setTemperature(int temperature) { this.temperature = temperature; }

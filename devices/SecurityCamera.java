@@ -1,5 +1,8 @@
 package devices;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import utils.DeviceType;
 
 public class SecurityCamera extends Device {
@@ -22,6 +25,13 @@ public class SecurityCamera extends Device {
 
     public static String[] getFormFields() {
         return FORM_FIELDS;
+    }
+
+    public static Map<String, String> getFormFieldTypes() {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("name", "string");
+        map.put("resolution", "string");
+        return map;
     }
 
     public void setResolution(String resolution) { this.resolution = resolution; }

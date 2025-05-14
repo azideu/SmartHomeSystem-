@@ -2,6 +2,8 @@ package devices;
 
 import utils.DeviceType;
 import java.time.LocalTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class SmartSpeaker extends Device implements Schedulable {
     public static final String[] FORM_FIELDS = {"name", "volume", "playlist"};
@@ -25,6 +27,14 @@ public class SmartSpeaker extends Device implements Schedulable {
 
     public static String[] getFormFields() {
         return FORM_FIELDS;
+    }
+
+    public static Map<String, String> getFormFieldTypes() {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("name", "string");
+        map.put("volume", "int");
+        map.put("playlist", "string");
+        return map;
     }
 
     public void setVolume(int volume) { this.volume = volume; }

@@ -1,5 +1,7 @@
 package utils;
 
+import java.util.Map;
+
 import devices.Aircon;
 import devices.Device;
 import devices.DoorLock;
@@ -31,6 +33,17 @@ public enum DeviceType {
             return new String[] {"name"};
         }
     }   
+
+    @SuppressWarnings("unchecked")
+    public Map<String, String> getFormFieldTypes() {
+        try {
+            return (Map<String, String>) deviceClass.getMethod("getFormFieldTypes").invoke(null);
+        } catch (Exception e) {
+            Map<String, String> fallback = new java.util.LinkedHashMap<>();
+            fallback.put("name", "string");
+            return fallback;
+        }
+    }
 
     @Override
     public String toString() {

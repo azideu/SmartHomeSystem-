@@ -3,6 +3,7 @@ package gui;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 import javax.swing.*;
 import java.awt.*;
 import java.text.NumberFormat;
@@ -16,6 +17,7 @@ public class SmartHomeDashboard extends JFrame {
     private DefaultListModel<String> deviceListModel;
     private JList<String> deviceList;
     private User user;
+    private JLabel clockLabel;
 
     public SmartHomeDashboard(User user) {
         this.user = user;
@@ -29,8 +31,15 @@ public class SmartHomeDashboard extends JFrame {
         JScrollPane deviceScrollPane = new JScrollPane(deviceList);
 
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(11, 1, 10, 10));
+        panel.setLayout(new GridLayout(12, 1, 10, 10)); // 12 rows: 1 for clock, 1 for label, 9 for buttons
+
         panel.add(new JLabel("Select an action:", SwingConstants.CENTER));
+
+        // --- Clock label ---
+        clockLabel = new JLabel();
+        clockLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        clockLabel.setFont(new Font("Monospaced", Font.BOLD, 18));
+        panel.add(clockLabel);
 
         JButton addDeviceBtn = new JButton("Add Device");
         JButton setScheduleBtn = new JButton("Set Device Schedule");
@@ -54,6 +63,12 @@ public class SmartHomeDashboard extends JFrame {
 
         add(panel, BorderLayout.WEST);
         add(deviceScrollPane, BorderLayout.CENTER);
+
+        // --- Start clock timer ---
+        javax.swing.Timer timer = new javax.swing.Timer(1000, evt -> {
+            clockLabel.setText("Current Time: " + java.time.LocalTime.now().withNano(0));
+        });
+        timer.start();
 
         refreshDeviceList();
 
@@ -81,21 +96,26 @@ public class SmartHomeDashboard extends JFrame {
             }
             if (selectedType == null) return;
 
-            // Build the form fields dynamically
-            String[] fields = selectedType.getFormFields();
+            // Build the form fields dynamically using field types
+            Map<String, String> fieldTypes = selectedType.getFormFieldTypes();
+            String[] fields = fieldTypes.keySet().toArray(new String[0]);
             if (fields.length == 0) return;
 
             JPanel formPanel = new JPanel(new GridLayout(fields.length, 2));
             JComponent[] inputFields = new JComponent[fields.length];
 
             for (int i = 0; i < fields.length; i++) {
-                formPanel.add(new JLabel(fields[i] + ":"));
-                if (fields[i].equalsIgnoreCase("temperature") ||
-                    fields[i].equalsIgnoreCase("volume") ||
-                    fields[i].equalsIgnoreCase("brightness")) {
+                String field = fields[i];
+                String type = fieldTypes.get(field);
+                formPanel.add(new JLabel(field + ":"));
+                if ("int".equals(type)) {
                     inputFields[i] = new JFormattedTextField(NumberFormat.getIntegerInstance());
-                } else if (fields[i].equalsIgnoreCase("locked")) {
-                    JComboBox<String> combo = new JComboBox<>(new String[]{"locked", "unlocked"});
+                } else if ("boolean".equals(type)) {
+                    JComboBox<String> combo = new JComboBox<>(new String[]{"true", "false"});
+                    inputFields[i] = combo;
+                } else if (type.startsWith("enum:")) {
+                    String[] options = type.substring(5).split(",");
+                    JComboBox<String> combo = new JComboBox<>(options);
                     inputFields[i] = combo;
                 } else {
                     inputFields[i] = new JTextField();
@@ -112,14 +132,18 @@ public class SmartHomeDashboard extends JFrame {
             Object[] args = new Object[fields.length];
             Class<?>[] argTypes = new Class<?>[fields.length];
             for (int i = 0; i < fields.length; i++) {
-                if (inputFields[i] instanceof JFormattedTextField) {
+                String type = fieldTypes.get(fields[i]);
+                if ("int".equals(type)) {
                     String val = ((JFormattedTextField) inputFields[i]).getText();
                     args[i] = val.isEmpty() ? 0 : Integer.parseInt(val);
                     argTypes[i] = int.class;
-                } else if (inputFields[i] instanceof JComboBox) {
+                } else if ("boolean".equals(type)) {
                     String val = (String) ((JComboBox<?>) inputFields[i]).getSelectedItem();
-                    args[i] = val.equalsIgnoreCase("locked") || val.equalsIgnoreCase("true");
+                    args[i] = Boolean.parseBoolean(val);
                     argTypes[i] = boolean.class;
+                } else if (type.startsWith("enum:")) {
+                    args[i] = ((JComboBox<?>) inputFields[i]).getSelectedItem();
+                    argTypes[i] = String.class;
                 } else {
                     args[i] = ((JTextField) inputFields[i]).getText();
                     argTypes[i] = String.class;
@@ -169,7 +193,7 @@ public class SmartHomeDashboard extends JFrame {
             );
             if (selected == null) return;
 
-            String timeStr = JOptionPane.showInputDialog(this, "Schedule time (HH:mm):");
+            String timeStr = JOptionPane.showInputDialog(this, "Schedule time (HH:MM):");
             if (timeStr == null) return;
             try {
                 String[] parts = timeStr.split(":");
