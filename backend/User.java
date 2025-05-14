@@ -1,7 +1,6 @@
-package user;
+package backend;
 
 import devices.*;
-
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +14,7 @@ public class User {
         this.devices = new ArrayList<>();
     }
 
-    public String getUsername() {
+    public String getName() {
         return username;
     }
 
@@ -50,11 +49,13 @@ public class User {
         System.out.println("No schedulable device named " + deviceName + " found.");
     }
 
-    public void showAllStatus() {
-        for (Device d : devices) {
-            System.out.printf("%s [%s] - %s, Used: %d seconds%n", d.getName(),
-                    d.getType(), d.isOn() ? "ON" : "OFF", d.getUsageInSeconds());
+    public String showAllStatus() {
+        StringBuilder sb = new StringBuilder();
+        for (String name : getAllDeviceNames()) {
+            Device device = getDevice(name);
+            sb.append(name).append(": ").append(device.getStatus()).append("\n");
         }
+        return sb.toString();
     }
 
     public void runScheduledActions(LocalTime currentTime) {
@@ -82,4 +83,3 @@ public class User {
         return names;
     }
 }
-

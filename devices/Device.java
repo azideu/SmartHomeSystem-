@@ -49,6 +49,10 @@ public abstract class Device {
         return isOn;
     }
 
+    public String getStatus() {
+        return isOn ? "ON" : "OFF";
+    }
+
     public long getUsageInSeconds() {
         return totalOnDuration;
     }
