@@ -2,40 +2,40 @@ package devices;
 
 import utils.DeviceType;
 
-import java.time.LocalTime;
-
-public class Aircon extends Device implements Schedulable {
+public class Aircon extends Device {
     private int temperature;
-    private LocalTime schedule;
-    
-    public Aircon(String name){
+    private String mode;
+
+    public Aircon(String name) {
         super(name, DeviceType.AIRCON);
         this.temperature = 22;
+        this.mode = "Cool";
     }
 
-    public Aircon(String name, int initialTemp) {
-        super(name, DeviceType.AIRCON);
-        this.temperature = initialTemp;
+    // Getters
+    public int getTemperature() {
+        return temperature;
+    }
+    public String getMode() {
+        return mode;
+    }
+
+    // Setters
+    public void setTemperature(int temperature) {
+    this.temperature = temperature;
+    }
+    
+    public void setMode(String mode) {
+        this.mode = mode;
     }
 
     @Override
     public void performDeviceFunction() {
-        System.out.println(name + " is regulating temperature to " + temperature + "°C.");
-    }
-
-    public void setTemperature(int temp) {
-        this.temperature = temp;
-        System.out.println(name + " temperature set to " + temp + "°C.");
+        System.out.println(getName() + " is set to " + temperature + "°C in " + mode + " mode.");
     }
 
     @Override
-    public void setSchedule(LocalTime time) {
-        this.schedule = time;
-    }
-
-    @Override
-    public LocalTime getSchedule() {
-        return schedule;
+    public String[] getConfigFields() {
+        return new String[] {"temperature", "mode"};
     }
 }
-

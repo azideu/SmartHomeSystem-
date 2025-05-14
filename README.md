@@ -11,13 +11,15 @@ This project simulates a smart home environment, allowing users to interact with
 * Control and monitor smart home devices.
 * User authentication and role management.
 * Device status tracking and logging.
+* Swing GUI with device list, control buttons, and real-time status bar.
 
 ## Project Structure
 
 * `Main.java` – Entry point of the application.
-* `devices/` – Contains classes representing various smart devices.
+* `devices/` – Contains classes representing smart devices.
 * `user/` – Manages user-related functionalities.
-* `utils/` – Utility classes and helper functions.([GitHub][1], [GitHub][3])
+* `utils/` – Utility classes and helper functions.
+* `gui/` – Swing GUI components and windows.
 
 ## Getting Started
 
@@ -61,8 +63,10 @@ This project simulates a smart home environment, allowing users to interact with
 
 ## Usage
 
-Upon running the application, follow the on-screen prompts to log in. Once authenticated, you can control various devices, view their statuses, and perform other actions as permitted by your user role.
+Once the application launches:
+In the GUI: Add, remove, or toggle devices using buttons. Device status will update in real time.
+In CLI mode: Follow on-screen prompts to log in and interact with devices through text commands.
 
 ## Contributing
 
-Contributions are welcome! Please fork the repository and submit a pull request for any enhancements or bug fixes. (I can't code shit pls help.)
+Contributions are welcome! Please fork the repository and submit a pull request for any enhancements or bug fixes. (I can't code shit pls help me.)

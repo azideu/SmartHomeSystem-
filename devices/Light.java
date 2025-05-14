@@ -2,28 +2,43 @@ package devices;
 
 import utils.DeviceType;
 
-import java.time.LocalTime;
-
-public class Light extends Device implements Schedulable {
-    private LocalTime schedule;
+public class Light extends Device {
+    private int brightness;
+    private String color;
 
     public Light(String name) {
         super(name, DeviceType.LIGHT);
+        this.brightness = 100;
+        this.color = "White";
+    }
+
+    // Getters
+    public int getBrightness() {
+        return brightness;
+    }
+    public String getColor() {
+        return color;
+    }
+
+    // Setters
+    public void setBrightness(int brightness) {
+    this.brightness = brightness;
+    }
+    
+    public void setColor(String color) {
+        this.color = color;
     }
 
     @Override
     public void performDeviceFunction() {
-        System.out.println(name + " is adjusting brightness and color temperature.");
+        // Example: toggle color or brightness
+        System.out.println(getName() + " is changing color to " + color + " at brightness " + brightness + "%.");
     }
 
     @Override
-    public void setSchedule(LocalTime time) {
-        this.schedule = time;
+    public String[] getConfigFields() {
+        return new String[] {"brightness", "color"};
     }
 
-    @Override
-    public LocalTime getSchedule() {
-        return schedule;
-    }
+    
 }
-

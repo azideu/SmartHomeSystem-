@@ -35,6 +35,8 @@ public abstract class Device {
         }
     }
 
+    public abstract String[] getConfigFields();
+
     public abstract void performDeviceFunction();
 
     public String getName() {

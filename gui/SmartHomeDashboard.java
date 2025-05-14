@@ -59,7 +59,7 @@ public class SmartHomeDashboard extends JFrame {
         // 1. Add Device
         addDeviceBtn.addActionListener(e -> {
             DeviceType[] types = DeviceType.values();
-            String type = (String) JOptionPane.showInputDialog(
+            String typeStr = (String) JOptionPane.showInputDialog(
                     this,
                     "Select device type:",
                     "Device Type",
@@ -68,11 +68,11 @@ public class SmartHomeDashboard extends JFrame {
                     Arrays.stream(types).map(Enum::toString).toArray(),
                     types[0].toString()
             );
-            if (type == null) return;
-
+            if (typeStr == null) return;
+        
             String name = JOptionPane.showInputDialog(this, "Enter device name:");
             if (name == null || name.trim().isEmpty()) return;
-
+        
             // Check for duplicate name
             for (String deviceName : user.getAllDeviceNames()) {
                 if (deviceName.equals(name)) {
@@ -80,12 +80,36 @@ public class SmartHomeDashboard extends JFrame {
                     return;
                 }
             }
-
-            // Add device using backend logic
+        
             for (DeviceType dt : types) {
-                if (dt.toString().equals(type)) {
+                if (dt.toString().equals(typeStr)) {
                     try {
+                        // Show config dialog and get values
+                        String[] configValues = showDeviceConfigDialog(dt);
+                        if (configValues == null) return; // User cancelled
+        
+                        // Create device (currently only name is used in constructor)
                         Device device = dt.getDeviceClass().getConstructor(String.class).newInstance(name);
+        
+                        // Set config fields for each device type
+                        if (device instanceof devices.Light && configValues.length == 2) {
+                            ((devices.Light) device).setBrightness(Integer.parseInt(configValues[0]));
+                            ((devices.Light) device).setColor(configValues[1]);
+                        } else if (device instanceof devices.Aircon && configValues.length == 2) {
+                            ((devices.Aircon) device).setTemperature(Integer.parseInt(configValues[0]));
+                            ((devices.Aircon) device).setMode(configValues[1]);
+                        } else if (device instanceof devices.SecurityCamera && configValues.length == 1) {
+                            ((devices.SecurityCamera) device).setResolution(configValues[0]);
+                        } else if (device instanceof devices.SmartSpeaker && configValues.length == 2) {
+                            ((devices.SmartSpeaker) device).setVolume(Integer.parseInt(configValues[0]));
+                            ((devices.SmartSpeaker) device).setPlaylist(configValues[1]);
+                        } else if (device instanceof devices.DoorLock && configValues.length == 1) {
+                            // For DoorLock, configValues[0] could be "true"/"false" or "locked"/"unlocked"
+                            boolean locked = configValues[0].equalsIgnoreCase("true") ||
+                                             configValues[0].equalsIgnoreCase("locked");
+                            ((devices.DoorLock) device).setLocked(locked);
+                        }
+        
                         user.addDevice(device);
                         refreshDeviceList();
                         return;
@@ -213,6 +237,38 @@ public class SmartHomeDashboard extends JFrame {
         exitBtn.addActionListener(e -> System.exit(0));
 
         setVisible(true);
+    }
+
+    // Dynamic config dialog for device creation
+    private String[] showDeviceConfigDialog(DeviceType type) {
+        try {
+            Device tempDevice = type.getDeviceClass().getConstructor(String.class).newInstance("temp");
+            String[] fields = tempDevice.getConfigFields();
+            if (fields.length == 0) return new String[0];
+
+            String[] values = new String[fields.length];
+            JPanel panel = new JPanel(new GridLayout(fields.length, 2));
+            JTextField[] textFields = new JTextField[fields.length];
+
+            for (int i = 0; i < fields.length; i++) {
+                panel.add(new JLabel(fields[i] + ":"));
+                textFields[i] = new JTextField();
+                panel.add(textFields[i]);
+            }
+
+            int result = JOptionPane.showConfirmDialog(this, panel, "Configure " + type,
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+            if (result == JOptionPane.OK_OPTION) {
+                for (int i = 0; i < fields.length; i++) {
+                    values[i] = textFields[i].getText();
+                }
+                return values;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     private void refreshDeviceList() {
