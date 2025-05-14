@@ -11,7 +11,6 @@ This project simulates a smart home environment, allowing users to interact with
 * Control and monitor smart home devices.
 * User authentication and role management.
 * Device status tracking and logging.
-* Modular design for easy expansion.([GitHub][1], [GitHub][2], [GitHub][3])
 
 ## Project Structure
 
@@ -58,16 +57,12 @@ This project simulates a smart home environment, allowing users to interact with
    java Main
    ```
 
-
+ニャン〜
 
 ## Usage
 
-Upon running the application, follow the on-screen prompts to log in or register. Once authenticated, you can control various devices, view their statuses, and perform other actions as permitted by your user role.
+Upon running the application, follow the on-screen prompts to log in. Once authenticated, you can control various devices, view their statuses, and perform other actions as permitted by your user role.
 
 ## Contributing
 
-Contributions are welcome! Please fork the repository and submit a pull request for any enhancements or bug fixes.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+Contributions are welcome! Please fork the repository and submit a pull request for any enhancements or bug fixes. (I can't code shit pls help.)
