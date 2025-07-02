@@ -67,8 +67,8 @@ public class Light extends Device implements Schedulable {
 
     @Override
     public void checkAndActivate(LocalTime currentTime) {
-        if (schedule != null && schedule.equals(currentTime) && !isOn) {
-            turnOn();
+        if (schedule != null && !isOn() && (currentTime.equals(schedule) || currentTime.isAfter(schedule))) {
+            performDeviceFunction();
         }
     }
 
