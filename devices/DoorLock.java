@@ -1,14 +1,16 @@
 package devices;
 
+import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import utils.DeviceType;
 
-public class DoorLock extends Device {
+public class DoorLock extends Device implements Schedulable {
     public static final String[] FORM_FIELDS = {"name", "locked"};
 
     private boolean locked;
+    private LocalTime schedule;
 
     public DoorLock(String name) {
         super(name, DeviceType.DOORLOCK);
@@ -43,5 +45,22 @@ public class DoorLock extends Device {
     @Override
     public String[] getConfigFields() {
         return new String[] {"locked"};
+    }
+
+    @Override
+    public void setSchedule(LocalTime schedule) {
+        this.schedule = schedule;
+    }
+
+    @Override
+    public LocalTime getSchedule() {
+        return this.schedule;
+    }
+
+    @Override
+    public void checkAndActivate(LocalTime currentTime) {
+        if (schedule != null && schedule.equals(currentTime)) {
+            performDeviceFunction();
+        }
     }
 }

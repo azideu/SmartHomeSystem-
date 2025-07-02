@@ -1,20 +1,24 @@
 package devices;
 
+import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import utils.DeviceType;
 
-public class Light extends Device {
+public class Light extends Device implements Schedulable {
     public static final String[] FORM_FIELDS = {"name", "brightness", "color"};
 
     private int brightness;
     private String color;
+    private LocalTime schedule;
+    private boolean isOn;
 
     public Light(String name) {
         super(name, DeviceType.LIGHT);
         this.brightness = 100;
         this.color = "White";
+        this.isOn = false;
     }
 
     public Light(String name, int brightness, String color) {
@@ -48,5 +52,28 @@ public class Light extends Device {
     @Override
     public String[] getConfigFields() {
         return new String[] {"brightness", "color"};
+    }
+
+
+    @Override
+    public void setSchedule(LocalTime schedule) {
+        this.schedule = schedule;
+    }
+
+    @Override
+    public LocalTime getSchedule() {
+        return this.schedule;
+    }
+
+    @Override
+    public void checkAndActivate(LocalTime currentTime) {
+        if (schedule != null && schedule.equals(currentTime) && !isOn) {
+            turnOn();
+        }
+    }
+
+    public void turnOn() {
+        isOn = true;
+        System.out.println(getName() + " light turned on at " + LocalTime.now());
     }
 }
