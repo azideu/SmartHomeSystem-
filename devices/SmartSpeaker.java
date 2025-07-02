@@ -67,4 +67,11 @@ public class SmartSpeaker extends Device implements Schedulable {
     public String[] getConfigFields() {
         return new String[] {"volume", "playlist"};
     }
+
+    @Override
+    public void checkAndActivate(LocalTime currentTime) {
+    if (schedule != null && !isOn() && (currentTime.equals(schedule) || currentTime.isAfter(schedule))) {
+            performDeviceFunction();
+        }
+    }
 }
