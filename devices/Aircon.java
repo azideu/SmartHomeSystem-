@@ -1,6 +1,8 @@
 package devices;
 
 import utils.DeviceType;
+
+import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -9,6 +11,8 @@ public class Aircon extends Device {
 
     private int temperature;
     private String mode;
+    private boolean isOn; // Indicates if the aircon is currently active
+    private LocalTime schedule;
 
     public Aircon(String name) {
         super(name, DeviceType.AIRCON);
@@ -20,6 +24,7 @@ public class Aircon extends Device {
         super(name, DeviceType.AIRCON);
         this.temperature = temperature;
         this.mode = mode;
+        this.isOn = false; // Initially, the aircon is off
     }
 
     public static String[] getFormFields() {
@@ -47,5 +52,24 @@ public class Aircon extends Device {
     @Override
     public String[] getConfigFields() {
         return new String[] {"temperature", "mode"};
+    }
+
+    public void setSchedule(LocalTime schedule) {
+        this.schedule = schedule;
+    }
+
+    public LocalTime getSchedule() {
+        return this.schedule;
+    }
+
+    public void checkAndActivate(LocalTime currentTime) {
+        if (schedule != null && schedule.equals(currentTime) && !isOn) {
+            turnOn();
+        }
+    }
+
+    public void turnOn() {
+        isOn = true;
+        System.out.println(getName() + " light turned on at " + LocalTime.now());
     }
 }

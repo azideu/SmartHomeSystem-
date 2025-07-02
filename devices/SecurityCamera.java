@@ -1,15 +1,17 @@
 package devices;
 
+import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import utils.DeviceType;
 
-public class SecurityCamera extends Device {
+public class SecurityCamera extends Device implements Schedulable {
     public static final String[] FORM_FIELDS = {"name", "resolution"};
 
     private boolean recording;
     private String resolution;
+    private LocalTime schedule;
 
     public SecurityCamera(String name) {
         super(name, DeviceType.SECURITY_CAMERA);
@@ -55,5 +57,22 @@ public class SecurityCamera extends Device {
     @Override
     public String[] getConfigFields() {
         return new String[] {"resolution"};
+    }
+
+    @Override
+    public void checkAndActivate(LocalTime currentTime) {
+        if (schedule != null && schedule.equals(currentTime)) {
+            performDeviceFunction();
+        }
+    }
+
+    @Override
+    public void setSchedule(LocalTime schedule) {
+        this.schedule = schedule;
+    }
+
+    @Override
+    public LocalTime getSchedule() {
+        return this.schedule;
     }
 }
