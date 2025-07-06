@@ -219,7 +219,7 @@ public class SmartHomeDashboard extends JFrame {
         String[] buttonLabels = {
             "Add Device", "Set Schedule", 
             "Turn On", "Turn Off", 
-            "Show Status", "Test All",
+            "Show Status", "Activate All Functions",
             "Run Schedule", "Remove Device"
         };
 
@@ -233,7 +233,7 @@ public class SmartHomeDashboard extends JFrame {
                 case "Turn On": button.addActionListener(e -> turnOnAction()); break;
                 case "Turn Off": button.addActionListener(e -> turnOffAction()); break;
                 case "Show Status": button.addActionListener(e -> showStatusAction()); break;
-                case "Test All": button.addActionListener(e -> activateAllAction()); break;
+                case "Activate All Functions": button.addActionListener(e -> activateAllAction()); break;
                 case "Run Schedule": button.addActionListener(e -> runScheduledAction()); break;
                 case "Remove Device": button.addActionListener(e -> removeDeviceAction()); break;
             }
@@ -669,7 +669,7 @@ private void styleInputField(JTextComponent field) {
 
     private void activateAllAction() {
         user.activateAllFunctions();
-        showMessageDialog("All devices turned on for 5 seconds!", successColor);
+        showMessageDialog("All devices functioning!", successColor);
         updateStatusPanel();
     }
 

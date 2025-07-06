@@ -1,6 +1,7 @@
 package devices;
 
 import utils.DeviceType;
+import utils.FileUtils;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -23,6 +24,7 @@ public abstract class Device {
         if (!isOn) {
             isOn = true;
             lastOnTime = Instant.now();
+            FileUtils.logAction(name + " is now ON.");
             System.out.println(name + " is now ON.");
         }
     }
@@ -31,6 +33,7 @@ public abstract class Device {
         if (isOn) {
             isOn = false;
             totalOnDuration += Duration.between(lastOnTime, Instant.now()).getSeconds();
+            FileUtils.logAction(name + " is now OFF.");
             System.out.println(name + " is now OFF.");
         }
     }
@@ -59,4 +62,3 @@ public abstract class Device {
         return totalOnDuration;
     }
 }
-

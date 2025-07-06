@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import utils.DeviceType;
+import utils.FileUtils;
 
 public class DoorLock extends Device implements Schedulable {
     public static final String[] FORM_FIELDS = {"name", "locked"};
@@ -39,6 +40,7 @@ public class DoorLock extends Device implements Schedulable {
     @Override
     public void performDeviceFunction() {
         locked = !locked;
+        FileUtils.logAction(getName() + (locked ? " is now locked." : " is now unlocked."));
         System.out.println(getName() + (locked ? " is now locked." : " is now unlocked."));
     }
 

@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import utils.DeviceType;
+import utils.FileUtils;
 
 public class Light extends Device implements Schedulable {
     public static final String[] FORM_FIELDS = {"name", "brightness", "color"};
@@ -12,13 +13,11 @@ public class Light extends Device implements Schedulable {
     private int brightness;
     private String color;
     private LocalTime schedule;
-    private boolean isOn;
 
     public Light(String name) {
         super(name, DeviceType.LIGHT);
         this.brightness = 100;
         this.color = "White";
-        this.isOn = false;
     }
 
     public Light(String name, int brightness, String color) {
@@ -46,6 +45,8 @@ public class Light extends Device implements Schedulable {
 
     @Override
     public void performDeviceFunction() {
+        turnOn();
+        FileUtils.logAction(getName() + " is changing color to " + color + " at brightness " + brightness + "%.");
         System.out.println(getName() + " is changing color to " + color + " at brightness " + brightness + "%.");
     }
 
@@ -53,7 +54,6 @@ public class Light extends Device implements Schedulable {
     public String[] getConfigFields() {
         return new String[] {"brightness", "color"};
     }
-
 
     @Override
     public void setSchedule(LocalTime schedule) {
@@ -72,8 +72,18 @@ public class Light extends Device implements Schedulable {
         }
     }
 
+    // Use the inherited turnOn/turnOff from Device, or override only if you want to add extra logging.
+    @Override
     public void turnOn() {
-        isOn = true;
+        super.turnOn();
+        FileUtils.logAction(getName() + " light turned on at " + LocalTime.now());
         System.out.println(getName() + " light turned on at " + LocalTime.now());
+    }
+
+    @Override
+    public void turnOff() {
+        super.turnOff();
+        FileUtils.logAction(getName() + " light turned off at " + LocalTime.now());
+        System.out.println(getName() + " light turned off at " + LocalTime.now());
     }
 }

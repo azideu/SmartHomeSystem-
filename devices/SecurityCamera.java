@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import utils.DeviceType;
+import utils.FileUtils;
 
 public class SecurityCamera extends Device implements Schedulable {
     public static final String[] FORM_FIELDS = {"name", "resolution"};
@@ -42,6 +43,7 @@ public class SecurityCamera extends Device implements Schedulable {
     @Override
     public void performDeviceFunction() {
         recording = true;
+        FileUtils.logAction(getName() + " is now recording at " + resolution + ".");
         System.out.println(getName() + " is now recording at " + resolution + ".");
     }
 
