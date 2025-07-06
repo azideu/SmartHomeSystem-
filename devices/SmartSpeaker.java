@@ -1,6 +1,7 @@
 package devices;
 
 import utils.DeviceType;
+import utils.FileUtils;
 import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -45,6 +46,7 @@ public class SmartSpeaker extends Device implements Schedulable {
     @Override
     public void performDeviceFunction() {
         playing = true;
+        FileUtils.logAction(getName() + " is playing your favorite playlist: " + playlist + " at volume " + volume + "!");
         System.out.println(getName() + " is playing your favorite playlist: " + playlist + " at volume " + volume + "!");
     }
 
@@ -70,7 +72,7 @@ public class SmartSpeaker extends Device implements Schedulable {
 
     @Override
     public void checkAndActivate(LocalTime currentTime) {
-    if (schedule != null && !isOn() && (currentTime.equals(schedule) || currentTime.isAfter(schedule))) {
+        if (schedule != null && !isOn() && (currentTime.equals(schedule) || currentTime.isAfter(schedule))) {
             performDeviceFunction();
         }
     }

@@ -1,17 +1,16 @@
 package devices;
 
 import utils.DeviceType;
-
+import utils.FileUtils;
 import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class Aircon extends Device {
+public class Aircon extends Device implements Schedulable {
     public static final String[] FORM_FIELDS = {"name", "temperature", "mode"};
 
     private int temperature;
     private String mode;
-    private boolean isOn; // Indicates if the aircon is currently active
     private LocalTime schedule;
 
     public Aircon(String name) {
@@ -24,12 +23,9 @@ public class Aircon extends Device {
         super(name, DeviceType.AIRCON);
         this.temperature = temperature;
         this.mode = mode;
-        this.isOn = false; // Initially, the aircon is off
     }
 
-    public static String[] getFormFields() {
-        return FORM_FIELDS;
-    }
+    public static String[] getFormFields() { return FORM_FIELDS; }
 
     public static Map<String, String> getFormFieldTypes() {
         Map<String, String> map = new LinkedHashMap<>();
@@ -46,30 +42,31 @@ public class Aircon extends Device {
 
     @Override
     public void performDeviceFunction() {
+        turnOn();
+        FileUtils.logAction(getName() + " aircon turned ON (" + temperature + "°C, " + mode + " mode).");
         System.out.println(getName() + " is set to " + temperature + "°C in " + mode + " mode.");
     }
 
     @Override
-    public String[] getConfigFields() {
-        return new String[] {"temperature", "mode"};
+    public void turnOff() {
+        super.turnOff();
+        FileUtils.logAction(getName() + " aircon turned OFF.");
+        System.out.println(getName() + " aircon is now OFF.");
     }
 
-    public void setSchedule(LocalTime schedule) {
-        this.schedule = schedule;
-    }
+    @Override
+    public String[] getConfigFields() { return new String[] {"temperature", "mode"}; }
 
-    public LocalTime getSchedule() {
-        return this.schedule;
-    }
+    @Override
+    public void setSchedule(LocalTime schedule) { this.schedule = schedule; }
 
+    @Override
+    public LocalTime getSchedule() { return this.schedule; }
+
+    @Override
     public void checkAndActivate(LocalTime currentTime) {
         if (schedule != null && !isOn() && (currentTime.equals(schedule) || currentTime.isAfter(schedule))) {
             performDeviceFunction();
         }
-    }
-
-    public void turnOn() {
-        isOn = true;
-        System.out.println(getName() + " light turned on at " + LocalTime.now());
     }
 }
